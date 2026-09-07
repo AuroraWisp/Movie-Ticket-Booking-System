@@ -2,8 +2,6 @@
 require_once "db.php";
 session_start();
 
-// Flash messages survive one redirect (POST-Redirect-GET pattern) so
-// refreshing the page never resubmits a form.
 $success = $_SESSION['flash_success'] ?? '';
 $error   = $_SESSION['flash_error'] ?? '';
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
@@ -14,7 +12,6 @@ $logged_in    = isset($_SESSION['admin_id']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
-    // ---- One-time bootstrap: create the very first admin account ----
     if ($action === 'create_admin' && !$admin_exists) {
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -36,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // ---- Login ----
     elseif ($action === 'login') {
         $username = trim($_POST['username'] ?? '');
         $password = trim($_POST['password'] ?? '');
@@ -55,14 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // ---- Logout ----
     elseif ($action === 'logout') {
         unset($_SESSION['admin_id'], $_SESSION['admin_name']);
         header("Location: admin.php");
         exit();
     }
 
-    // ---- Everything below requires an active admin session ----
     elseif ($logged_in) {
 
         if ($action === 'add_movie') {
@@ -82,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         elseif ($action === 'delete_movie') {
             $movie_id = filter_input(INPUT_POST, 'movie_id', FILTER_VALIDATE_INT);
             if ($movie_id) {
-                // ON DELETE CASCADE also removes its showtimes and seats.
                 $stmt = $pdo->prepare("DELETE FROM movies WHERE id = ?");
                 $stmt->execute([$movie_id]);
                 $_SESSION['flash_success'] = "Movie deleted.";
@@ -140,13 +133,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Re-read flash messages in case an action above just set one and redirected
-// (the redirect already happened via exit(), so this only matters for the
-// very first load where nothing was just set above).
 $success = $success ?: ($_SESSION['flash_success'] ?? '');
 $error   = $error ?: ($_SESSION['flash_error'] ?? '');
 
-// ---- Data for the dashboard (only needed once logged in) ----
+$movie_count = $showtime_count = $booked_seat_count = $booking_count = 0;
+$movies = [];
+$showtimes_by_movie = [];
+$booked_by_date = [];
+$tomorrow = date('Y-m-d', strtotime('+1 day'));
+
 if ($logged_in) {
     $movie_count       = $pdo->query("SELECT COUNT(*) FROM movies")->fetchColumn();
     $showtime_count    = $pdo->query("SELECT COUNT(*) FROM showtimes")->fetchColumn();
@@ -155,7 +150,6 @@ if ($logged_in) {
 
     $movies = $pdo->query("SELECT * FROM movies ORDER BY title ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-    $showtimes_by_movie = [];
     $showtime_rows = $pdo->query("SELECT * FROM showtimes ORDER BY show_date ASC, showtime ASC")->fetchAll(PDO::FETCH_ASSOC);
     foreach ($showtime_rows as $row) {
         $showtimes_by_movie[$row['movie_id']][] = $row;
@@ -168,8 +162,6 @@ if ($logged_in) {
         GROUP BY show_date
         ORDER BY show_date ASC
     ")->fetchAll(PDO::FETCH_ASSOC);
-
-    $tomorrow = date('Y-m-d', strtotime('+1 day'));
 }
 ?>
 <!DOCTYPE html>
@@ -265,7 +257,6 @@ if ($logged_in) {
 
 <?php if (!$admin_exists): ?>
 
-    <!-- ============ ONE-TIME SETUP: no admin account exists yet ============ -->
     <div class="auth-card">
         <span class="admin-badge">🔒 First-Time Setup</span>
         <h2 style="margin-bottom: 20px;">Create Admin Account</h2>
@@ -291,7 +282,6 @@ if ($logged_in) {
 
 <?php elseif (!$logged_in): ?>
 
-    <!-- ============ LOGIN ============ -->
     <div class="auth-card">
         <span class="admin-badge">🔒 Admin Only</span>
         <h2 style="margin-bottom: 20px;">Admin Login</h2>
@@ -312,7 +302,6 @@ if ($logged_in) {
 
 <?php else: ?>
 
-    <!-- ============ DASHBOARD (logged in) ============ -->
     <div class="container" style="max-width: 850px;">
         <div class="header-bar">
             <div>
