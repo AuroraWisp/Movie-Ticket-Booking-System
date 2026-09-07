@@ -1,4 +1,3 @@
-/* --- Modern Cinema Theme & Base Styles --- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -37,7 +36,6 @@ h2 {
     margin-bottom: 15px;
 }
 
-/* --- Error Messaging --- */
 .error-msg {
     color: #f87171;
     background-color: rgba(239, 68, 68, 0.1);
@@ -48,7 +46,6 @@ h2 {
     margin-bottom: 20px;
     min-height: 20px;
 }
-/* Fully Symmetric Action Buttons Layout */
 .btn-group {
     display: flex !important;
     gap: 16px !important;
@@ -104,7 +101,6 @@ h2 {
     color: #ffffff !important;
 }
 
-/* --- Curved Screen Indicator --- */
 .cinema-screen {
     background: linear-gradient(180deg, #38bdf8 0%, rgba(56, 189, 248, 0.1) 100%);
     color: #0f172a;
@@ -119,7 +115,6 @@ h2 {
     text-transform: uppercase;
 }
 
-/* --- Grid & Seat Layout --- */
 #seat-grid {
     display: flex;
     flex-direction: column;
@@ -134,7 +129,6 @@ h2 {
     justify-content: center;
 }
 
-/* Base Seat Style */
 .seat {
     width: 42px;
     height: 42px;
@@ -149,7 +143,6 @@ h2 {
     position: relative;
 }
 
-/* Free/Available Seats */
 .seat.free {
     background-color: #334155;
     color: #cbd5e1;
@@ -164,7 +157,6 @@ h2 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Selected Seats */
 .seat.selected {
     background-color: #22c55e !important;
     color: #ffffff !important;
@@ -173,7 +165,6 @@ h2 {
     box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
 }
 
-/* Booked/Unavailable Seats */
 .seat.booked {
     background-color: #0f172a;
     color: #475569;
@@ -186,7 +177,6 @@ h2 {
     display: none;
 }
 
-/* --- Action Buttons --- */
 .btn {
     display: inline-block;
     padding: 12px 24px;
@@ -220,7 +210,6 @@ h2 {
     color: #f8fafc;
 }
 
-/* --- Responsive Adjustments --- */
 @media (max-width: 480px) {
     .container {
         padding: 20px 15px;
