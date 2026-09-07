@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Auth & Booking Data Check
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -13,7 +12,7 @@ if (!isset($_SESSION['last_booking'])) {
 }
 
 $booking = $_SESSION['last_booking'];
-$booking_id = "TKT-" . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+$booking_id = $booking['ref'] ?? ("TKT-" . strtoupper(substr(md5(uniqid((string)mt_rand(), true)), 0, 8)));
 $user_name = $_SESSION['user_name'] ?? 'Customer';
 ?>
 <!DOCTYPE html>
@@ -21,7 +20,7 @@ $user_name = $_SESSION['user_name'] ?? 'Customer';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Success - Ticket #<?= $booking_id ?></title>
+    <title>CineVerse</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .success-banner {
@@ -144,7 +143,6 @@ $user_name = $_SESSION['user_name'] ?? 'Customer';
             font-weight: bold;
         }
 
-        /* Symmetric 3-Button Action Grid Layout */
         .btn-group-3 {
             display: flex !important;
             gap: 12px !important;
@@ -211,7 +209,6 @@ $user_name = $_SESSION['user_name'] ?? 'Customer';
             border-color: #ef4444 !important;
         }
 
-        /* Print Stylesheet */
         @media print {
             body {
                 background: #ffffff !important;
@@ -247,12 +244,10 @@ $user_name = $_SESSION['user_name'] ?? 'Customer';
 
 <div class="container" style="max-width: 650px;">
 
-    <!-- Success Header -->
     <div class="success-banner">
         <span>🎉 Booking Confirmed! Payment Received.</span>
     </div>
 
-    <!-- Digital Movie Ticket Card -->
     <div class="ticket-card">
         <div class="ticket-header">
             <h3>CINEMA MOVIE TICKET</h3>
