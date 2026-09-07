@@ -77,9 +77,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $insert_stmt->execute([$movie_id, $show_date, $showtime, $seat_code, $user_id]);
                 }
 
+                $booking_ref = "TKT-" . strtoupper(substr(md5(uniqid((string)mt_rand(), true)), 0, 8));
+
+                $booking_sql = "
+                    INSERT INTO bookings
+                        (booking_ref, user_id, movie_id, show_date, showtime, seats, seat_count, total_amount, payment_name, payment_account, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed')
+                ";
+                $booking_stmt = $pdo->prepare($booking_sql);
+                $booking_stmt->execute([
+                    $booking_ref,
+                    $user_id,
+                    $movie_id,
+                    $show_date,
+                    $showtime,
+                    implode(',', $selected_seats),
+                    $seat_count,
+                    $total_amount,
+                    $card_name,
+                    $account_num
+                ]);
+
                 $pdo->commit();
 
                 $_SESSION['last_booking'] = [
+                    'ref'     => $booking_ref,
                     'movie'   => $movie['title'],
                     'date'    => $show_date,
                     'time'    => $showtime,
@@ -104,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - <?= htmlspecialchars($movie['title']) ?></title>
+    <title>CineVerse</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .checkout-grid {
