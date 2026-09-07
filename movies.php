@@ -122,9 +122,24 @@ foreach ($raw_schedules as $row) {
         }
 
         .logout-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background-color: rgba(248, 113, 113, 0.1);
             color: #f87171;
-
+            border: 1px solid #f87171;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
             text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
         }
     </style>
 </head>
