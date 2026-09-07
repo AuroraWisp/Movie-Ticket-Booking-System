@@ -1,14 +1,12 @@
 <?php
-require_once "config/db.php";
+require_once "db.php";
 session_start();
 
-// Auth Check
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Retrieve Movie, Date, and Time parameters from query string
 $movie_id  = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?? filter_input(INPUT_GET, 'movie_id', FILTER_VALIDATE_INT);
 $show_date = filter_input(INPUT_GET, 'date', FILTER_DEFAULT);
 $showtime  = filter_input(INPUT_GET, 'time', FILTER_DEFAULT);
@@ -18,7 +16,6 @@ if (!$movie_id || !$show_date || !$showtime) {
     exit();
 }
 
-// Fetch Movie Info
 $stmt = $pdo->prepare("SELECT title, genre, duration_min FROM movies WHERE id = ?");
 $stmt->execute([$movie_id]);
 $movie = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,7 +27,6 @@ if (!$movie) {
 $error = "";
 $selected_seats = [];
 
-// Handle Seat Booking Form Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['seat']) || !is_array($_POST['seat'])) {
         $error = "Please select at least one seat to proceed.";
@@ -49,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch currently booked seats for this specific movie, date, and showtime slot
 $stmt = $pdo->prepare("
     SELECT seat_no 
     FROM seats 
@@ -58,7 +53,6 @@ $stmt = $pdo->prepare("
 $stmt->execute([$movie_id, $show_date, $showtime]);
 $booked_seats = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-// Define 8 Rows (A-H) and 8 Columns (1-8)
 $rows = range('A', 'H');
 $total_cols = 8;
 ?>
@@ -67,8 +61,8 @@ $total_cols = 8;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditorium - <?= htmlspecialchars($movie['title']) ?></title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>CineVerse</title>
+    <link rel="stylesheet" href="style.css">
     <style>
         .auditorium-wrapper {
             background-color: #0b0f19;
@@ -100,7 +94,6 @@ $total_cols = 8;
             font-weight: 500;
         }
 
-        /* Cinema Curved Screen */
         .cinema-screen-container {
             perspective: 400px;
             margin-bottom: 35px;
@@ -125,7 +118,6 @@ $total_cols = 8;
             font-weight: bold;
         }
 
-        /* 8x8 Seat Grid Layout */
         .seat-grid {
             display: flex;
             flex-direction: column;
@@ -148,7 +140,6 @@ $total_cols = 8;
             font-size: 0.85rem;
         }
 
-        /* Seat Buttons */
         .seat {
             width: 36px;
             height: 36px;
@@ -185,9 +176,9 @@ $total_cols = 8;
         }
 
         .seat.booked {
-            background-color: #334155;
-            color: #64748b;
-            border: 1px solid #1e293b;
+            background-color:  #f11a1a;
+            color: #f8fafc;
+            border: 1px solid #f8fafc;
             cursor: not-allowed;
             text-decoration: line-through;
             opacity: 0.6;
@@ -197,7 +188,6 @@ $total_cols = 8;
             display: none;
         }
 
-        /* Exit Doors at the Bottom */
         .exit-doors-container {
             display: flex;
             justify-content: space-between;
@@ -222,7 +212,6 @@ $total_cols = 8;
             text-transform: uppercase;
         }
 
-        /* Legend */
         .seat-legend {
             display: flex;
             justify-content: center;
@@ -254,7 +243,6 @@ $total_cols = 8;
             font-size: 0.9rem;
         }
 
-        /* Symmetric Action Buttons Layout */
         .btn-group {
             display: flex;
             gap: 16px;
@@ -307,7 +295,6 @@ $total_cols = 8;
 
 <div class="container" style="max-width: 650px;">
 
-    <!-- Movie & Slot Info -->
     <div class="booking-details">
         <h3><?= htmlspecialchars($movie['title']) ?></h3>
         <div class="meta-info">
@@ -321,15 +308,12 @@ $total_cols = 8;
         <div class="error-msg"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <!-- Interactive Cinema Room Visualizer -->
     <div class="auditorium-wrapper">
-        <!-- Curved Screen at Front -->
         <div class="cinema-screen-container">
             <div class="cinema-screen"></div>
             <div class="screen-label">CINEMA SCREEN</div>
         </div>
 
-        <!-- 8x8 Seat Grid -->
         <form id="seat-form" method="post" action="seats.php?id=<?= $movie_id ?>&date=<?= urlencode($show_date) ?>&time=<?= urlencode($showtime) ?>">
             <div class="seat-grid">
                 <?php foreach ($rows as $r): ?>
@@ -357,14 +341,12 @@ $total_cols = 8;
             </div>
         </form>
 
-        <!-- Exit Doors at Bottom/Back of the Room -->
         <div class="exit-doors-container">
             <div class="exit-door">🚪 EXIT</div>
             <div class="exit-door">EXIT 🚪</div>
         </div>
     </div>
 
-    <!-- Seat Legend -->
     <div class="seat-legend">
         <div class="legend-item">
             <div class="legend-box" style="background-color: #1e293b; border: 1px solid #334155;"></div> Available
@@ -377,7 +359,6 @@ $total_cols = 8;
         </div>
     </div>
 
-    <!-- Symmetric Action Buttons -->
     <div class="btn-group">
         <a href="movies.php" class="btn-action secondary">← Back to Movies</a>
         <button type="submit" form="seat-form" class="btn-action primary">Proceed to Payment →</button>
